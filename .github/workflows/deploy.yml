@@ -7,36 +7,36 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to EC2
+    name: Deploy to Render
     runs-on: ubuntu-latest
-
+    
     steps:
-      # Setup SSH Key
-      - name: Setup SSH Key
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Trigger Render deploy hook
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
-          chmod 600 ~/.ssh/ec2_key.pem
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
 
-      # Deploy to EC2
-      - name: Deploy to EC2
+      - name: Wait for deployment to complete
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem ubuntu@${{ secrets.EC2_PUBLIC_KEY }} << 'EOF'
-            cd /home/ubuntu/fastapi-book-project
+          echo "Waiting for deployment to complete..."
+          for i in {1..20}; do  # Adjust the number of retries if needed
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_APP_URL }})
+            if [[ "$HTTP_STATUS" == "200" || "$HTTP_STATUS" == "302" ]]; then
+              echo "Deployment successful! Application is responding."
+              exit 0
+            fi
+            echo "Still waiting... (Attempt $i)"
+            sleep 10  # Wait 10 seconds before retrying
+          done
+          echo "Warning: Application did not become available within the expected time."
 
-            # Pull latest changes
-            git pull origin main
-
-            # Activate Pipenv virtual environment
-            source ~/.local/share/virtualenvs/fastapi-book-project/bin/activate
-
-            # Install dependencies
-            pip install -r requirements.txt
-
-            # Restart FastAPI service
-            sudo systemctl restart fastapi-book.service
-          EOF
-
-      # Cleanup SSH Key
-      - name: Cleanup SSH Key
-        run: rm -f ~/.ssh/ec2_key.pem
+      - name: Verify deployment
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" ${{ secrets.RENDER_APP_URL }})
+          if [[ "$HTTP_STATUS" == "200" || "$HTTP_STATUS" == "302" ]]; then
+            echo "✅ Deployment successful! Application is live."
+          else
+            echo "⚠️ Warning: Application returned HTTP status $HTTP_STATUS. It might still be starting up."
+            exit 1  # Fails the workflow if the deployment isn't successful
