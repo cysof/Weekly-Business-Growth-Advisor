@@ -1,31 +1,46 @@
-from fastapi import FastAPI
-from app.routers import insights
-import app.scheduler as scheduler
-from fastapi import HTTPException
+from fastapi import FastAPI, BackgroundTasks
+import requests
+from app.schemas import TickPayload  # Assuming you stored your Pydantic models in schemas.py
+from app.services import generate_insight  # Import the dynamic insight generator
+import logging
 
 app = FastAPI(title="Weekly Business Growth Advisor")
 
-# Include routers
-app.include_router(insights.router)
+logger = logging.getLogger(__name__)
 
-# Start background tasks (Scheduler)
-scheduler.start()
-
-@app.get("/")
-def read_root():
+def process_tick_task(payload: TickPayload):
     """
-    Root endpoint for the FastAPI application.
-
-    Returns:
-        dict: A message indicating the status of the Weekly Business Growth Advisor.
+    This background task dynamically fetches data and generates a business insight,
+    then posts the results back to Telex via the provided return_url.
     """
+    try:
+        # Dynamically fetch the insight using your business logic
+        insight = generate_insight()  # generate_insight() should return an object with attributes: metric, observation, recommendation
+        
+        logger.info(f"Generated insight for {insight.metric}: {insight.observation}")
+        
+        # Prepare the result payload as expected by Telex
+        result_payload = {
+            "message": f"📊 {insight.observation}\n✅ {insight.recommendation}",
+            "username": "Weekly Business Growth Advisor",
+            "event_name": "Weekly Business Insight",
+            "status": "success"
+        }
+        
+        # Post the result back to Telex using the return_url provided in the payload
+        response = requests.post(payload.return_url, json=result_payload, timeout=10)
+        response.raise_for_status()
+        logger.info(f"Successfully posted insight to Telex. Status code: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Error posting insight to Telex: {e}")
 
-    return {"message": "Weekly Business Growth Advisor is running!"}
-
-
-
-
-# # Run the FastAPI application
-# if __name__ == "__main__":
-#     import uvicorn
-#     uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.post("/tick", status_code=202)
+def tick_endpoint(payload: TickPayload, background_tasks: BackgroundTasks):
+    """
+    Tick endpoint that processes incoming requests from Telex.
+    
+    This endpoint is called on a scheduled basis by Telex.
+    It delegates processing to a background task and immediately returns an acceptance response.
+    """
+    background_tasks.add_task(process_tick_task, payload)
+    return {"status": "accepted"}
