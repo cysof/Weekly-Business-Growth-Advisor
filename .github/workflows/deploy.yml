@@ -1,0 +1,42 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      # Setup SSH Key
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+
+      # Deploy to EC2
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem ubuntu@${{ secrets.EC2_PUBLIC_KEY }} << 'EOF'
+            cd /home/ubuntu/fastapi-book-project
+
+            # Pull latest changes
+            git pull origin main
+
+            # Activate Pipenv virtual environment
+            source ~/.local/share/virtualenvs/fastapi-book-project/bin/activate
+
+            # Install dependencies
+            pip install -r requirements.txt
+
+            # Restart FastAPI service
+            sudo systemctl restart fastapi-book.service
+          EOF
+
+      # Cleanup SSH Key
+      - name: Cleanup SSH Key
+        run: rm -f ~/.ssh/ec2_key.pem
