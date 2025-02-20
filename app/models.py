@@ -15,4 +15,4 @@ class Setting(BaseModel):
 class TickPayload(BaseModel):
     channel_id: str
     return_url: str
-    settings: List[Setting]
+    settings: list[Setting]

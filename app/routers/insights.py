@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 import logging
+from  app.services import generate_insight
 
 # Set up logging
 logger = logging.getLogger(__name__)

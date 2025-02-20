@@ -1,7 +1,7 @@
 from fastapi import FastAPI, BackgroundTasks
 import requests
-from app.schemas import TickPayload  # Assuming you stored your Pydantic models in schemas.py
-from app.services import generate_insight  # Import the dynamic insight generator
+from app.models import TickPayload 
+from app.services import generate_insight 
 import logging
 
 app = FastAPI(title="Weekly Business Growth Advisor")
