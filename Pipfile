@@ -9,6 +9,9 @@ pydantic = "*"
 requests = "*"
 apscheduler = "*"
 pytest = "*"
+python-jose = {extras = ["cryptography"], version = "*"}
+passlib = {extras = ["bcrypt"], version = "*"}
+pydantic-settings = "*"
 
 [dev-packages]
 
