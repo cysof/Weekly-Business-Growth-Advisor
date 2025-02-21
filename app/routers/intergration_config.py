@@ -20,6 +20,7 @@ integration_json = {
         },
         "is_active": True,
         "integration_type": "interval",
+        "integration_category": "data analytics & visualization",
         "key_features": [
             "📊 Automated Business Insights – Provides weekly analytics-driven insights to improve decision-making.\n🔍 Google Analytics Integration – Uses Google Analytics data to track website performance.\n⏳ Scheduled Reports – Runs automatically every Monday at 9 AM to deliver fresh insights.\n📢 Actionable Recommendations – Offers data-driven suggestions to boost engagement and conversions.\n🚀 Telex Integration – Sends insights directly to your Telex channels for seamless notifications."
         ],
