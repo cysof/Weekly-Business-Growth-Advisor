@@ -6,17 +6,14 @@ from datetime import datetime
 import logging
 from  app.services import generate_insight
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# Define response models for better API documentation
 class BusinessInsightResponse(BaseModel):
     metric: str
     observation: str
     recommendation: str
     generated_at: datetime
 
-# Create router with tags and prefix
 router = APIRouter(prefix="/insights", tags=["Insights"])
 
 @router.get(
@@ -46,16 +43,15 @@ async def get_weekly_insight(
             - 500 if insight generation fails
     """
     try:
-        # Log the request
+        
         logger.info("Generating insight")
         
-        # Generate the insight
+        
         insight = generate_insight()
         
-        # Add cache control headers
-        response.headers["Cache-Control"] = "max-age=3600"  # Cache for 1 hour
+        response.headers["Cache-Control"] = "max-age=3600"
         
-        # Return with timestamp
+        
         return {
             "metric": insight.metric,
             "observation": insight.observation,
@@ -69,7 +65,6 @@ async def get_weekly_insight(
             detail="Failed to generate business insight. Please try again later."
         )
 
-# Additional endpoints could be added here
 
 @router.get(
     "/metrics/{metric_name}",
@@ -91,8 +86,6 @@ async def get_metric_insight(
         HTTPException: 
             - 404 if metric is not supported
     """
-    # This is a placeholder - you would need to modify your generate_insight service
-    # to support specific metrics
     if metric_name.lower() not in ['revenue', 'customers', 'conversion']:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

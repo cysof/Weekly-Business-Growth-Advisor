@@ -1,10 +1,22 @@
 from fastapi import FastAPI, BackgroundTasks
 import requests
 from app.models import TickPayload 
-from app.services import generate_insight 
+from app.services import generate_insight
+from app.routers.intergration_config import router as integration_router
+from fastapi.middleware.cors import CORSMiddleware
 import logging
 
-app = FastAPI(title="Weekly Business Growth Advisor")
+app = FastAPI(title="Weekly-Business-Growth-Advisor")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(integration_router)
 
 logger = logging.getLogger(__name__)
 
