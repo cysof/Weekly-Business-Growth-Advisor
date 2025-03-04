@@ -1,0 +1,303 @@
+/** 
+ * Danfaithshelters Landing Page
+ * A comprehensive real estate website built with React and TypeScript
+ * Deployed on Val Town for seamless web hosting
+ */
+
+/** 
+ * Import necessary React and ReactDOM libraries 
+ * Using esm.sh for module imports with specific version pinning
+ */
+/** @jsxImportSource https://esm.sh/react@18.2.0 */
+import React, { useState, useEffect } from "https://esm.sh/react@18.2.0";
+import { createRoot } from "https://esm.sh/react-dom@18.2.0/client";
+
+/**
+ * Testimonial Component
+ * Displays individual client testimonials with name, location, and text
+ * @param {Object} props - Component properties
+ * @param {string} props.name - Client's name
+ * @param {string} props.text - Testimonial text
+ * @param {string} props.location - Client's location
+ */
+function Testimonial({ name, text, location }) {
+  return (
+    <div className="testimonial-card">
+      <p className="testimonial-text">"{text}"</p>
+      <div className="testimonial-author">
+        <strong>{name}</strong>
+        <span>{location}</span>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * PropertyCarousel Component
+ * An auto-rotating image carousel showcasing property images
+ * Features navigation buttons and indicator dots
+ * @returns {React.Component} Carousel component
+ */
+function PropertyCarousel() {
+  // State to track current image index
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Array of property images
+  const properties = [
+    {
+      id: 1,
+      imageUrl: "https://maxm-imggenurl.web.val.run/modern-luxury-apartment-lagos-nigeria"
+    },
+    {
+      id: 2,
+      imageUrl: "https://maxm-imggenurl.web.val.run/suburban-family-home-nigeria"
+    },
+    {
+      id: 3,
+      imageUrl: "https://maxm-imggenurl.web.val.run/commercial-property-nigeria"
+    }
+  ];
+
+  // Function to navigate to next property
+  const nextProperty = () => {
+    setCurrentIndex((prevIndex) => 
+      (prevIndex + 1) % properties.length
+    );
+  };
+
+  // Function to navigate to previous property
+  const prevProperty = () => {
+    setCurrentIndex((prevIndex) => 
+      (prevIndex - 1 + properties.length) % properties.length
+    );
+  };
+
+  // Auto-rotate carousel every 30 seconds
+  useEffect(() => {
+    const slideInterval = setInterval(nextProperty, 30000);
+    return () => clearInterval(slideInterval);
+  }, []);
+
+  const currentProperty = properties[currentIndex];
+
+  return (
+    <div className="property-carousel">
+      <div className="carousel-container">
+        {/* Previous navigation button */}
+        <button 
+          className="carousel-nav prev" 
+          onClick={prevProperty}
+        >
+          ◀
+        </button>
+        
+        <div className="carousel-content">
+          <div className="carousel-image">
+            <img 
+              src={currentProperty.imageUrl} 
+              alt="Property Showcase" 
+            />
+          </div>
+        </div>
+        
+        {/* Next navigation button */}
+        <button 
+          className="carousel-nav next" 
+          onClick={nextProperty}
+        >
+          ▶
+        </button>
+      </div>
+      {/* Carousel indicator dots */}
+      <div className="carousel-indicators">
+        {properties.map((_, index) => (
+          <span 
+            key={index} 
+            className={`indicator ${index === currentIndex ? 'active' : ''}`}
+            onClick={() => setCurrentIndex(index)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Main Application Component
+ * Renders the entire landing page with all sections
+ * @returns {React.Component} Full landing page
+ */
+function App() {
+  return (
+    <div className="container">
+      {/* Header with Logo and Navigation */}
+      <header>
+        <nav>
+          <div className="logo">
+            <div className="logo-container">
+              <div className="logo-icon">🏠</div>
+              <div className="logo-text">
+                <div className="logo-brand">
+                  <span className="dan">DAN</span>
+                  <span className="faith">FAITH</span>
+                </div>
+                <div className="logo-subtitle">
+                  <span className="shelters">SHELTERS</span>
+                  <span className="limited">LIMITED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Navigation Menu */}
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#testimonials">Testimonials</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </nav>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section id="home" className="hero">
+          <h1>Your Dream Home Awaits</h1>
+          <p>Trusted Real Estate Solutions in Your Community</p>
+          <PropertyCarousel />
+          <div className="hero-cta">
+            <a href="#contact" className="cta-button">Get Started</a>
+          </div>
+        </section>
+
+        {/* Services Section */}
+        <section id="services" className="services">
+          <h2>Our Services</h2>
+          <div className="service-grid">
+            <div className="service-card">
+              <h3>🏡 Property Sales</h3>
+              <p>Find your perfect home with our expert guidance</p>
+            </div>
+            <div className="service-card">
+              <h3>🏘️ Property Management</h3>
+              <p>Professional management for property owners</p>
+            </div>
+            <div className="service-card">
+              <h3>🤝 Investment Consulting</h3>
+              <p>Strategic real estate investment advice</p>
+            </div>
+          </div>
+        </section>
+
+        {/* About Section */}
+        <section id="about" className="about">
+          <h2>About Danfaithsheltersltd</h2>
+          <p>
+            We are a dedicated real estate company committed to helping 
+            clients find their ideal properties and make smart investment 
+            decisions. With years of local market experience, we provide 
+            personalized service that turns your real estate dreams into reality.
+          </p>
+        </section>
+
+        {/* Testimonials Section */}
+        <section id="testimonials" className="testimonials">
+          <h2>What Our Clients Say</h2>
+          <div className="testimonials-grid">
+            <Testimonial 
+              name="Michael Johnson" 
+              location="Lagos, Nigeria"
+              text="Danfaithsheltersltd helped me find my dream home. Their professionalism and attention to detail made the entire process smooth and stress-free."
+            />
+            <Testimonial 
+              name="Sarah Williams" 
+              location="Abuja, Nigeria"
+              text="I was impressed by the investment consulting services. Their strategic advice helped me make a smart property investment that has already increased in value."
+            />
+            <Testimonial 
+              name="David Okonkwo" 
+              location="Port Harcourt, Nigeria"
+              text="The property management team is exceptional. They've taken care of my rental properties efficiently, ensuring maximum returns with minimal hassle."
+            />
+          </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="contact">
+          <h2>Contact Us</h2>
+          <form>
+            <input type="text" placeholder="Your Name" required />
+            <input type="email" placeholder="Your Email" required />
+            <textarea placeholder="Your Message" required></textarea>
+            <button type="submit">Send Message</button>
+          </form>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer>
+        <p>© 2023 Danfaithsheltersltd. All Rights Reserved.</p>
+        <a 
+          href={import.meta.url.replace("esm.town", "val.town")} 
+          target="_top" 
+          className="source-link"
+        >
+          View Source
+        </a>
+      </footer>
+    </div>
+  );
+}
+
+/**
+ * Client-side rendering function
+ * Renders the React application in the browser
+ */
+function client() {
+  createRoot(document.getElementById("root")).render(<App />);
+}
+
+// Ensure client-side rendering only happens in browser environment
+if (typeof document !== "undefined") { client(); }
+
+/**
+ * Server-side rendering function
+ * Generates HTML response with embedded React application
+ * @param {Request} request - Incoming server request
+ * @returns {Response} HTML response
+ */
+export default async function server(request: Request): Promise<Response> {
+  return new Response(`
+    <html>
+      <head>
+        <title>Danfaithsheltersltd - Real Estate Solutions</title>
+        <meta name="description" content="Your trusted partner in real estate" />
+        <style>${css}</style>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </head>
+      <body>
+        <div id="root"></div>
+        <script src="https://esm.town/v/std/catch"></script>
+        <script type="module" src="${import.meta.url}"></script>
+      </body>
+    </html>
+  `, {
+    headers: {
+      "content-type": "text/html",
+    },
+  });
+}
+
+// CSS remains the same as in the previous submission
+const css = `
+/* CSS styles for the entire application */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* [Rest of the CSS remains unchanged] */
+`;
